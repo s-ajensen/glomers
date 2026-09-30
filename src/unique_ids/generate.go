@@ -3,11 +3,10 @@ package generate
 import (
 	"encoding/json"
 	"fmt"
+	"sync/atomic"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
-
-func ptr[T any](v T) *T { return &v }
 
 type GenerateReply struct {
 	Type string           `json:"type"`
@@ -15,12 +14,12 @@ type GenerateReply struct {
 }
 
 func Handler(node *maelstrom.Node) maelstrom.HandlerFunc {
-	next := 0
+	var next atomic.Int32
 	return func(msg maelstrom.Message) error {
-		next++
+		id := next.Add(1)
 		body := GenerateReply{
 			Type: "generate_ok",
-			ID:   ptr(json.RawMessage(fmt.Sprintf(`"%s%d"`, node.ID(), next))),
+			ID:   new(json.RawMessage(fmt.Sprintf(`"%s%d"`, node.ID(), id))),
 		}
 
 		return node.Reply(msg, body)
