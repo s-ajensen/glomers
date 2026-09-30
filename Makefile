@@ -1,9 +1,16 @@
 MAELSTROM_VERSION := v0.2.4
 MAELSTROM := maelstrom/maelstrom
 TEST = $(MAELSTROM) test --bin $<
+GOTESTSUM := go run gotest.tools/gotestsum@v1.13.0 --format testname
 
-.PHONY: echo unique-ids broadcast-a broadcast-b broadcast-c broadcast-d broadcast-e \
+.PHONY: test watch echo unique-ids broadcast-a broadcast-b broadcast-c broadcast-d broadcast-e \
         g-counter kafka-a kafka-b kafka-c txn-a txn-b txn-c serve FORCE
+
+test:
+	$(GOTESTSUM) ./...
+
+watch:
+	$(GOTESTSUM) --watch ./...
 
 $(MAELSTROM):
 	curl -fsSL https://github.com/jepsen-io/maelstrom/releases/download/$(MAELSTROM_VERSION)/maelstrom.tar.bz2 | tar xj

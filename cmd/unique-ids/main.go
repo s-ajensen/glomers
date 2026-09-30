@@ -3,14 +3,14 @@ package main
 import (
 	"log"
 
-	"glomers/src/echo"
+	generate "glomers/src/unique_ids"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
 func main() {
 	node := maelstrom.NewNode()
-	node.Handle("echo", echo.Handler(node))
+	node.Handle("generate", generate.Handler(node))
 	if err := node.Run(); err != nil {
 		log.Fatal(err)
 	}

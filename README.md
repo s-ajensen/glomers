@@ -4,12 +4,20 @@ Go solutions to the [Fly.io distributed systems challenges](https://fly.io/dist-
 
 ## Prerequisites
 
-- Go 1.23 or later
-- A JDK (11 or later), Graphviz, and Gnuplot, which Maelstrom needs:
+- Go 1.27 or later
+- For Maelstrom: a JDK (11 or later), Graphviz, and Gnuplot, from your
+  system's package manager. Check with `java -version`, `dot -V`, and
+  `gnuplot --version`.
 
-  ```
-  brew install openjdk graphviz gnuplot
-  ```
+Everything else arrives through `go run` and `go get` on first use.
+
+## Test
+
+```
+make test
+```
+
+`make watch` re-runs the tests for a package each time a file in it changes.
 
 ## Run
 
