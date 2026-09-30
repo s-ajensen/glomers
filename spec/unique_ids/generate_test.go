@@ -19,23 +19,22 @@ func sendGen(n helpers.Node, client string) generate.GenerateReply {
 	return n.Send[generate.GenerateReply](client, json.RawMessage(`{"type":"generate"}`))
 }
 
-var handlers = map[string]helpers.HandlerFactory{
-	"generate": generate.Handler,
-}
-
 func TestHandlerReturnsFirstId(t *testing.T) {
-	node := helpers.Start(t, "n1", handlers)
+	g := generate.Generate{}
+	node := helpers.Start(t, "n1", g)
 	assert.NotZero(t, sendGen(node, "c1").ID)
 }
 
 func TestHandlerReturnsDifferentId(t *testing.T) {
-	node := helpers.Start(t, "n1", handlers)
+	g := generate.Generate{}
+	node := helpers.Start(t, "n1", g)
 	assert.NotEqual(t, sendGen(node, "c1").ID, sendGen(node, "c1").ID)
 }
 
 func TestHandlerReturnsDifferentIdConcurrently(t *testing.T) {
 	msgs := 1000
-	node := helpers.Start(t, "n1", handlers)
+	g := generate.Generate{}
+	node := helpers.Start(t, "n1", g)
 
 	var wg sync.WaitGroup
 	handler := node.Handlers["generate"]
@@ -62,8 +61,9 @@ func TestHandlerReturnsDifferentIdConcurrently(t *testing.T) {
 }
 
 func TestHandlerDifferentNodes_ReturnDifferentId(t *testing.T) {
-	node1 := helpers.Start(t, "n1", handlers)
-	node2 := helpers.Start(t, "n2", handlers)
+	g := generate.Generate{}
+	node1 := helpers.Start(t, "n1", g)
+	node2 := helpers.Start(t, "n2", g)
 
 	assert.NotEqual(t, sendGen(node1, "c1").ID, sendGen(node2, "c1").ID)
 }

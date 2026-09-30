@@ -1,17 +1,12 @@
 package main
 
 import (
-	"log"
-
 	"glomers/src/echo"
+	"glomers/src/workload"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
 func main() {
-	node := maelstrom.NewNode()
-	node.Handle("echo", echo.Handler(node))
-	if err := node.Run(); err != nil {
-		log.Fatal(err)
-	}
+	workload.Start(maelstrom.NewNode(), echo.Echo{})
 }

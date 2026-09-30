@@ -1,14 +1,17 @@
-package node_helper
+package helpers
 
 import (
 	"bytes"
 	"encoding/json"
+	"glomers/src/workload"
 	"testing"
 
 	"github.com/alecthomas/assert/v2"
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
+// provides a hook for handling messages synchronously &
+// parsing stdout
 type Node struct {
 	T        *testing.T
 	ID       string
@@ -34,19 +37,12 @@ func (n Node) Send[T any](client string, body json.RawMessage) T {
 	return reply
 }
 
-type HandlerFactory func(node *maelstrom.Node) maelstrom.HandlerFunc
-
-func Start(t *testing.T, id string, handlerFactories map[string]HandlerFactory) Node {
+func Start(t *testing.T, id string, workload workload.Workload) Node {
 	t.Helper()
 	var out bytes.Buffer
 	n := maelstrom.NewNode()
 	n.Stdout = &out
 	n.Init(id, []string{id})
 
-	handlers := make(map[string]maelstrom.HandlerFunc, len(handlerFactories))
-	for kind, fac := range handlerFactories {
-		handlers[kind] = fac(n)
-	}
-
-	return Node{T: t, ID: id, Handlers: handlers, Out: json.NewDecoder(&out)}
+	return Node{T: t, ID: id, Handlers: workload.Handlers(n), Out: json.NewDecoder(&out)}
 }

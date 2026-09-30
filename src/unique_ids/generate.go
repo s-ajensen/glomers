@@ -8,6 +8,14 @@ import (
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
+type Generate struct{}
+
+func (g Generate) Handlers(n *maelstrom.Node) map[string]maelstrom.HandlerFunc {
+	return map[string]maelstrom.HandlerFunc{
+		"generate": Handler(n),
+	}
+}
+
 type GenerateReply struct {
 	Type string           `json:"type"`
 	ID   *json.RawMessage `json:"id"`

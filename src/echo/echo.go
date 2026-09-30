@@ -6,6 +6,14 @@ import (
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
+type Echo struct{}
+
+func (e Echo) Handlers(n *maelstrom.Node) map[string]maelstrom.HandlerFunc {
+	return map[string]maelstrom.HandlerFunc{
+		"echo": Handler(n),
+	}
+}
+
 func Handler(node *maelstrom.Node) maelstrom.HandlerFunc {
 	return func(msg maelstrom.Message) error {
 		var body map[string]any
