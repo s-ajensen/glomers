@@ -4,11 +4,9 @@ import (
 	"encoding/json"
 	helpers "glomers/spec/helpers"
 	generate "glomers/src/unique_ids"
-	"sync"
 	"testing"
 
 	"github.com/alecthomas/assert/v2"
-	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
 type repliedId struct {
@@ -32,24 +30,17 @@ func TestHandlerReturnsDifferentId(t *testing.T) {
 }
 
 func TestHandlerReturnsDifferentIdConcurrently(t *testing.T) {
-	msgs := 1000
 	g := generate.Generate{}
 	node := helpers.Start(t, "n1", g)
 
-	var wg sync.WaitGroup
-	handler := node.Handlers["generate"]
-	for range msgs {
-		wg.Go(func() {
-			handler(maelstrom.Message{Body: json.RawMessage(`{"type":"generate"}`)})
-		})
+	makeMsg := func(idx int) json.RawMessage {
+		return json.RawMessage(`{"type":"generate"}`)
 	}
-	wg.Wait()
+	msgs := node.SendConcurrently[generate.GenerateReply](5, makeMsg)
 
-	ids := make(map[repliedId]int)
-	var msg maelstrom.Message
+	ids := make(map[repliedId]int, len(msgs))
 	var id repliedId
-	for range msgs {
-		node.Out.Decode(&msg)
+	for _, msg := range msgs {
 		json.Unmarshal(msg.Body, &id)
 		ids[id]++
 	}

@@ -25,6 +25,7 @@ func (b *Broadcast) Handlers(n *maelstrom.Node) map[string]maelstrom.HandlerFunc
 	return map[string]maelstrom.HandlerFunc{
 		"broadcast": BroadcastHandler(n, b),
 		"read":      ReadHandler(n, b),
+		"topology":  TopologyHandler(n, b),
 	}
 }
 
@@ -74,5 +75,24 @@ type ReadReply struct {
 func ReadHandler(node *maelstrom.Node, b *Broadcast) maelstrom.HandlerFunc {
 	return func(msg maelstrom.Message) error {
 		return node.Reply(msg, ReadReply{Type: "read_ok", Messages: b.Messages()})
+	}
+}
+
+type TopologyReq struct {
+	Topology map[string][]string `json:"topology"`
+}
+
+type TopologyReply struct {
+	Type string `json:"type"`
+}
+
+func TopologyHandler(node *maelstrom.Node, b *Broadcast) maelstrom.HandlerFunc {
+	return func(msg maelstrom.Message) error {
+		var req TopologyReq
+		if err := json.Unmarshal(msg.Body, &req); err != nil {
+			return node.Reply(msg, errors.Malformed(err.Error()))
+		}
+
+		return node.Reply(msg, TopologyReply{Type: "topology_ok"})
 	}
 }
