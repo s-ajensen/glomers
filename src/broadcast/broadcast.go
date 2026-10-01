@@ -63,6 +63,14 @@ func BroadcastHandler(node *maelstrom.Node, b *Broadcast) maelstrom.HandlerFunc 
 
 		b.add(req.Message)
 
+		for _, peer := range node.NodeIDs() {
+			if peer != node.ID() {
+				node.RPC(peer, msg.Body, func(msg maelstrom.Message) error {
+					return nil
+				})
+			}
+		}
+
 		return node.Reply(msg, BroadcastReply{Type: "broadcast_ok"})
 	}
 }

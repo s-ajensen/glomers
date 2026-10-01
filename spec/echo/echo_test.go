@@ -16,9 +16,10 @@ type echoReply struct {
 
 func TestHandlerReturns_Message(t *testing.T) {
 	e := echo.Echo{}
-	node1 := helpers.Start(t, "n1", e)
+	node1 := helpers.Start(t, "n1", nil, e)
 
-	resp := node1.Send[echoReply]("c1", json.RawMessage(`{"type":"echo","echo":"foo"}`))
+	node1.Send("c1", json.RawMessage(`{"type":"echo","echo":"foo"}`))
+	resp := node1.ReadReply[echoReply]()
 	assert.Equal(t, "echo_ok", resp.Type)
 	assert.Equal(t, "foo", resp.Echo)
 }
